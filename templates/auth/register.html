@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+<div class="max-w-sm mx-auto mt-8">
+  <div class="card p-8">
+    <h1 class="text-2xl font-semibold mb-1" style="color: var(--color-text-main);">Create account</h1>
+    <p class="text-sm mb-6" style="color: var(--color-text-muted);">Join Inkwell and start writing today.</p>
+
+    <form method="POST" action="{{ url_for('auth.register') }}" enctype="multipart/form-data" class="space-y-4">
+      <div>
+        <label for="username" class="label">Username</label>
+        <input type="text" name="username" id="username" class="input" placeholder="yourname" required autocomplete="username" />
+      </div>
+      <div>
+        <label for="email" class="label">Email</label>
+        <input type="email" name="email" id="email" class="input" placeholder="you@example.com" required autocomplete="email" />
+      </div>
+      <div>
+        <label for="password" class="label">Password</label>
+        <input type="password" name="password" id="password" class="input" placeholder="Min. 8 characters" required autocomplete="new-password" />
+      </div>
+      <div>
+        <label for="confirm_password" class="label">Confirm Password</label>
+        <input type="password" name="confirm_password" id="confirm_password" class="input" placeholder="Repeat password" required autocomplete="new-password" />
+      </div>
+      <div>
+        <label class="label">Profile Picture <span style="color: var(--color-text-muted);">(optional)</span></label>
+        <div class="flex items-center gap-4">
+          <img id="avatar-preview" src="{{ url_for('static', filename='uploads/profiles/default.png') }}"
+               class="w-16 h-16 rounded-full object-cover ring-2" style="ring-color: var(--color-primary);"
+               onerror="this.src='{{ url_for('static', filename='uploads/profiles/default.png') }}'" />
+          <div class="flex-1">
+            <input type="file" name="profile_picture" id="profile_picture" accept="image/*"
+                   class="text-sm file:btn file:btn-primary file:mr-3 file:text-xs w-full"
+                   onchange="previewAvatar(this)" />
+            <p class="text-xs mt-1" style="color: var(--color-text-muted);">PNG, JPG or GIF up to 4MB</p>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary w-full justify-center py-2.5">Create Account</button>
+    </form>
+
+    <p class="text-center text-sm mt-6" style="color: var(--color-text-muted);">
+      Already have an account?
+      <a href="{{ url_for('auth.login') }}" class="font-medium" style="color: var(--color-primary);">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('avatar-preview').src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}

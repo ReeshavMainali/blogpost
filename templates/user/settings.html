@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+  <h1 class="text-2xl font-semibold mb-6" style="color: var(--color-text-main);">Account Settings</h1>
+
+  <form method="POST" action="{{ url_for('user.settings') }}" enctype="multipart/form-data" class="space-y-6">
+
+    <!-- Profile Picture -->
+    <div class="card p-6">
+      <h2 class="text-sm font-semibold uppercase tracking-widest mb-4" style="color: var(--color-text-muted);">Profile Picture</h2>
+      <div class="flex items-center gap-5">
+        <img id="avatar-preview"
+             src="{{ url_for('static', filename='uploads/' + current_user.profile_picture) }}"
+             alt="{{ current_user.username }}"
+             class="w-20 h-20 rounded-full object-cover ring-4"
+             style="ring-color: var(--color-primary);"
+             onerror="this.src='{{ url_for('static', filename='uploads/profiles/default.png') }}'" />
+        <div>
+          <input type="file" name="profile_picture" id="profile_picture" accept="image/*"
+                 class="text-sm file:btn file:btn-primary file:mr-3 file:text-xs"
+                 onchange="previewAvatar(this)" />
+          <p class="text-xs mt-1" style="color: var(--color-text-muted);">PNG, JPG or GIF, up to 4MB</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bio -->
+    <div class="card p-6">
+      <h2 class="text-sm font-semibold uppercase tracking-widest mb-4" style="color: var(--color-text-muted);">About Me</h2>
+      <div>
+        <label for="bio" class="label">Bio</label>
+        <textarea name="bio" id="bio" rows="4" class="input resize-none"
+                  placeholder="Tell readers about yourself...">{{ current_user.bio or '' }}</textarea>
+      </div>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card p-6">
+      <h2 class="text-sm font-semibold uppercase tracking-widest mb-4" style="color: var(--color-text-muted);">Change Password</h2>
+      <div class="space-y-4">
+        <div>
+          <label for="current_password" class="label">Current Password</label>
+          <input type="password" name="current_password" id="current_password" class="input"
+                 placeholder="Enter current password" autocomplete="current-password" />
+        </div>
+        <div>
+          <label for="new_password" class="label">New Password</label>
+          <input type="password" name="new_password" id="new_password" class="input"
+                 placeholder="Enter new password" autocomplete="new-password" />
+        </div>
+        <div>
+          <label for="confirm_password" class="label">Confirm New Password</label>
+          <input type="password" name="confirm_password" id="confirm_password" class="input"
+                 placeholder="Repeat new password" autocomplete="new-password" />
+        </div>
+        <p class="text-xs" style="color: var(--color-text-muted);">Leave blank to keep your current password.</p>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit" class="btn btn-primary px-6">Save Settings</button>
+      <a href="{{ url_for('user.profile', username=current_user.username) }}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('avatar-preview').src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}

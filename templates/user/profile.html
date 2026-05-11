@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<!-- Profile header -->
+<div class="card p-8 mb-8">
+  <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+    <img src="{{ url_for('static', filename='uploads/' + profile_user.profile_picture) }}"
+         alt="{{ profile_user.username }}"
+         class="w-24 h-24 rounded-full object-cover ring-4"
+         style="ring-color: var(--color-primary);"
+         onerror="this.src='{{ url_for('static', filename='uploads/profiles/default.png') }}'" />
+    <div class="flex-1 text-center sm:text-left">
+      <h1 class="text-2xl font-semibold" style="color: var(--color-text-main);">{{ profile_user.username }}</h1>
+      <p class="text-sm mt-1" style="color: var(--color-text-muted);">Member since {{ profile_user.created_at.strftime('%B %Y') }}</p>
+      {% if profile_user.bio %}
+        <p class="mt-3 text-sm leading-relaxed max-w-lg" style="color: var(--color-text-main);">{{ profile_user.bio }}</p>
+      {% endif %}
+      <div class="flex items-center gap-4 mt-4 justify-center sm:justify-start">
+        <span class="text-sm" style="color: var(--color-text-muted);">
+          <strong style="color: var(--color-text-main);">{{ posts | length }}</strong> posts
+        </span>
+        {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+          <a href="{{ url_for('user.settings') }}" class="btn btn-primary text-xs py-1.5 px-3">Edit Profile</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Posts by this user -->
+<h2 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color: var(--color-text-muted);">
+  Posts by {{ profile_user.username }}
+</h2>
+
+{% if posts %}
+  <div class="grid sm:grid-cols-2 gap-4">
+    {% for post in posts %}
+      <a href="{{ url_for('blog.post_detail', slug=post.slug) }}"
+         class="card p-5 no-underline group hover:shadow-md transition-shadow block">
+        {% if post.cover_image %}
+          <img src="{{ url_for('static', filename='uploads/' + post.cover_image) }}"
+               alt="{{ post.title }}" class="w-full h-36 object-cover rounded-lg mb-4" />
+        {% endif %}
+        <h3 class="font-semibold text-base mb-2 group-hover:underline line-clamp-2"
+            style="color: var(--color-text-main);">{{ post.title }}</h3>
+        <div class="flex items-center justify-between mt-3 text-xs" style="color: var(--color-text-muted);">
+          <span>{{ post.created_at.strftime('%b %d, %Y') }}</span>
+          <span class="flex gap-3">
+            <span>{{ post.views }} views</span>
+            <span>{{ post.like_count }} likes</span>
+          </span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="text-center py-16" style="color: var(--color-text-muted);">
+    <p>No posts yet.</p>
+    {% if current_user.is_authenticated and current_user.id == profile_user.id %}
+      <a href="{{ url_for('blog.new_post') }}" class="btn btn-primary mt-4">Write your first post</a>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}

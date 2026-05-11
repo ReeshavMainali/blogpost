@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<article class="max-w-3xl mx-auto">
+  <!-- Post header -->
+  <header class="mb-8">
+    {% if post.cover_image %}
+      <img src="{{ url_for('static', filename='uploads/' + post.cover_image) }}"
+           alt="{{ post.title }}"
+           class="w-full h-64 sm:h-80 object-cover rounded-xl mb-6" />
+    {% endif %}
+    <h1 class="text-3xl sm:text-4xl font-semibold leading-tight mb-4" style="color: var(--color-text-main);">
+      {{ post.title }}
+    </h1>
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <a href="{{ url_for('user.profile', username=post.author.username) }}"
+         class="flex items-center gap-3 no-underline group">
+        <img src="{{ url_for('static', filename='uploads/' + post.author.profile_picture) }}"
+             alt="{{ post.author.username }}"
+             class="w-10 h-10 rounded-full object-cover ring-2 group-hover:ring-4 transition-all"
+             style="ring-color: var(--color-primary);"
+             onerror="this.src='{{ url_for('static', filename='uploads/profiles/default.png') }}'" />
+        <div>
+          <p class="text-sm font-medium group-hover:underline" style="color: var(--color-text-main);">
+            {{ post.author.username }}
+          </p>
+          <p class="text-xs" style="color: var(--color-text-muted);">
+            {{ post.created_at.strftime('%B %d, %Y') }}
+          </p>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-4">
+        <!-- Views -->
+        <span class="flex items-center gap-1.5 text-sm" style="color: var(--color-text-muted);">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          <span id="views-count">{{ post.views }}</span>
+        </span>
+
+        <!-- Like button -->
+        {% if current_user.is_authenticated %}
+          <button id="like-btn"
+                  onclick="toggleLike({{ post.id }})"
+                  class="flex items-center gap-1.5 text-sm transition-all active:scale-90 cursor-pointer"
+                  style="color: {% if liked %}var(--color-error){% else %}var(--color-text-muted){% endif %};">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
+                 fill="{% if liked %}currentColor{% else %}none{% endif %}" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+            <span id="like-count">{{ post.like_count }}</span>
+          </button>
+        {% else %}
+          <span class="flex items-center gap-1.5 text-sm" style="color: var(--color-text-muted);">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+            {{ post.like_count }}
+          </span>
+        {% endif %}
+
+        {% if current_user.is_authenticated and current_user.id == post.user_id %}
+          <a href="{{ url_for('blog.edit_post', slug=post.slug) }}"
+             class="btn btn-ghost text-xs py-1 px-2">Edit</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Post content -->
+  <div class="prose-content mb-12" style="color: var(--color-text-main);">
+    {{ content_html | safe }}
+  </div>
+
+  <hr style="border-color: var(--color-text-muted); opacity: 0.2;" class="mb-12" />
+
+  <!-- Comments -->
+  <section id="comments">
+    <h2 class="text-xl font-semibold mb-6" style="color: var(--color-text-main);">
+      Comments <span class="text-base font-normal" style="color: var(--color-text-muted);">({{ post.comment_count }})</span>
+    </h2>
+
+    {% if current_user.is_authenticated %}
+    <div class="card p-5 mb-8">
+      <form method="POST" action="{{ url_for('blog.add_comment', post_id=post.id) }}" class="space-y-3">
+        <input type="hidden" name="parent_id" value="" id="reply-parent-id" />
+        <div id="replying-to" class="hidden text-sm px-3 py-2 rounded-lg" style="background-color: var(--color-bg);">
+          Replying to: <span id="replying-to-name" class="font-medium"></span>
+          <button type="button" onclick="cancelReply()" class="ml-2 underline text-xs" style="color: var(--color-text-muted);">cancel</button>
+        </div>
+        <textarea name="body" rows="3" class="input resize-none"
+                  placeholder="Share your thoughts..." required></textarea>
+        <button type="submit" class="btn btn-primary text-sm py-1.5">Post Comment</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="text-sm mb-8" style="color: var(--color-text-muted);">
+      <a href="{{ url_for('auth.login') }}" style="color: var(--color-primary);">Log in</a> to leave a comment.
+    </p>
+    {% endif %}
+
+    <!-- Comment thread -->
+    <div class="space-y-5">
+      {% for comment in comments %}
+        {{ render_comment(comment, 0) }}
+      {% endfor %}
+    </div>
+  </section>
+</article>
+{% endblock %}
+
+{% macro render_comment(comment, depth) %}
+<div class="{% if depth > 0 %}ml-8 pl-4 border-l-2{% endif %}" style="{% if depth > 0 %}border-color: var(--color-primary); opacity: 0.7;{% endif %}">
+  <div class="card p-4">
+    <div class="flex items-start justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <a href="{{ url_for('user.profile', username=comment.author.username) }}" class="flex items-center gap-2 no-underline">
+          <img src="{{ url_for('static', filename='uploads/' + comment.author.profile_picture) }}"
+               alt="{{ comment.author.username }}"
+               class="w-7 h-7 rounded-full object-cover"
+               onerror="this.src='{{ url_for('static', filename='uploads/profiles/default.png') }}'" />
+          <span class="text-sm font-medium" style="color: var(--color-text-main);">{{ comment.author.username }}</span>
+        </a>
+        <span class="text-xs" style="color: var(--color-text-muted);">{{ comment.created_at.strftime('%b %d, %Y') }}</span>
+      </div>
+      {% if current_user.is_authenticated and current_user.id == comment.user_id %}
+        <form method="POST" action="{{ url_for('blog.delete_comment', post_id=post.id, comment_id=comment.id) }}">
+          <button class="text-xs hover:opacity-70" style="color: var(--color-error);">Delete</button>
+        </form>
+      {% endif %}
+    </div>
+    <p class="mt-2 text-sm leading-relaxed" style="color: var(--color-text-main);">{{ comment.body }}</p>
+    {% if current_user.is_authenticated and depth < 3 %}
+      <button onclick="setReply({{ comment.id }}, '{{ comment.author.username }}')"
+              class="mt-2 text-xs hover:underline" style="color: var(--color-primary);">Reply</button>
+    {% endif %}
+  </div>
+  {% if comment.replies.count() > 0 %}
+    <div class="mt-3 space-y-3">
+      {% for reply in comment.replies.order_by('created_at') %}
+        {{ render_comment(reply, depth + 1) }}
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% block scripts %}
+<script>
+  function toggleLike(postId) {
+    fetch(`/post/${postId}/like`, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        const btn = document.getElementById('like-btn');
+        const count = document.getElementById('like-count');
+        count.textContent = d.count;
+        if (d.liked) {
+          btn.style.color = 'var(--color-error)';
+          btn.querySelector('svg').setAttribute('fill', 'currentColor');
+        } else {
+          btn.style.color = 'var(--color-text-muted)';
+          btn.querySelector('svg').setAttribute('fill', 'none');
+        }
+      });
+  }
+
+  function setReply(commentId, username) {
+    document.getElementById('reply-parent-id').value = commentId;
+    document.getElementById('replying-to-name').textContent = username;
+    document.getElementById('replying-to').classList.remove('hidden');
+    document.querySelector('textarea[name="body"]').focus();
+    document.querySelector('#comments form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelReply() {
+    document.getElementById('reply-parent-id').value = '';
+    document.getElementById('replying-to').classList.add('hidden');
+  }
+</script>
+{% endblock %}

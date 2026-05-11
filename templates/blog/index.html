@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="mb-12 text-center">
+  <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight mb-4" style="color: var(--color-text-main);">
+    Ideas worth sharing
+  </h1>
+  <p class="text-lg max-w-xl mx-auto" style="color: var(--color-text-muted);">
+    A minimalist space to read and write. No noise — just words.
+  </p>
+  {% if not current_user.is_authenticated %}
+    <div class="mt-6 flex gap-3 justify-center">
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary px-6 py-2.5">Start writing</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost px-6 py-2.5">Sign in</a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Trending -->
+{% if trending %}
+<section class="mb-12">
+  <h2 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color: var(--color-text-muted);">
+    Trending
+  </h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for post in trending %}
+    <div class="card p-5 group hover:shadow-md transition-shadow cursor-pointer"
+         onclick="window.location.href='{{ url_for('blog.post_detail', slug=post.slug) }}'">
+      {% if post.cover_image %}
+        <img src="{{ url_for('static', filename='uploads/' + post.cover_image) }}"
+             alt="{{ post.title }}" class="w-full h-40 object-cover rounded-lg mb-4" />
+      {% endif %}
+      <h3 class="font-semibold text-base mb-3 group-hover:underline line-clamp-2"
+          style="color: var(--color-text-main);">{{ post.title }}</h3>
+      <div class="flex items-center justify-between gap-2">
+        <a href="{{ url_for('user.profile', username=post.author.username) }}"
+           class="flex items-center gap-2 text-xs no-underline hover:underline"
+           style="color: var(--color-text-muted);" onclick="event.stopPropagation()">
+          <img src="{{ url_for('static', filename='uploads/' + post.author.profile_picture) }}"
+               alt="{{ post.author.username }}"
+               class="w-5 h-5 rounded-full object-cover"
+               onerror="this.src='{{ url_for('static', filename='uploads/profiles/default.png') }}'" />
+          <span class="truncate">{{ post.author.username }}</span>
+        </a>
+        <span class="flex items-center gap-3 text-xs shrink-0" style="color: var(--color-text-muted);">
+          <span class="flex items-center gap-1" title="Views">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            {{ post.views }}
+          </span>
+          <span class="flex items-center gap-1" title="Likes">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            {{ post.like_count }}
+          </span>
+        </span>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Pagination -->
+  {% if total_pages > 1 %}
+    <div class="mt-8 flex items-center justify-center gap-2">
+      {% if current_page > 1 %}
+        <a href="{{ url_for('blog.index', page=current_page - 1) }}" class="btn btn-ghost text-sm px-3 py-1.5">
+          ← Previous
+        </a>
+      {% endif %}
+      
+      <div class="flex gap-1">
+        {% for page_num in range(1, total_pages + 1) %}
+          {% if page_num == current_page %}
+            <span class="btn btn-ghost text-sm px-3 py-1.5 font-semibold" style="color: var(--color-primary);">
+              {{ page_num }}
+            </span>
+          {% else %}
+            <a href="{{ url_for('blog.index', page=page_num) }}" class="btn btn-ghost text-sm px-3 py-1.5">
+              {{ page_num }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+      
+      {% if current_page < total_pages %}
+        <a href="{{ url_for('blog.index', page=current_page + 1) }}" class="btn btn-ghost text-sm px-3 py-1.5">
+          Next →
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+</section>
+{% endif %}
+
+<!-- Recent posts -->
+{% if recent %}
+<section>
+  <h2 class="text-xs font-semibold uppercase tracking-widest mb-5" style="color: var(--color-text-muted);">
+    Recent
+  </h2>
+  <div class="space-y-3">
+    {% for post in recent %}
+    <div class="card px-5 py-4 flex items-start justify-between gap-4">
+      <div class="flex-1 min-w-0">
+        <a href="{{ url_for('blog.post_detail', slug=post.slug) }}"
+           class="font-medium hover:underline line-clamp-1" style="color: var(--color-text-main);">
+          {{ post.title }}
+        </a>
+        <div class="flex items-center gap-3 mt-1 text-xs" style="color: var(--color-text-muted);">
+          <a href="{{ url_for('user.profile', username=post.author.username) }}"
+             class="hover:underline" style="color: var(--color-primary);">
+            {{ post.author.username }}
+          </a>
+          <span>{{ post.created_at.strftime('%b %d, %Y') }}</span>
+        </div>
+      </div>
+      <span class="flex items-center gap-3 text-xs shrink-0" style="color: var(--color-text-muted);">
+        <span class="flex items-center gap-1" title="Views">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          {{ post.views }}
+        </span>
+        <span class="flex items-center gap-1" title="Likes">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          {{ post.like_count }}
+        </span>
+        <span class="flex items-center gap-1" title="Comments">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+          {{ post.comment_count }}
+        </span>
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<div class="text-center py-20" style="color: var(--color-text-muted);">
+  <p class="text-lg">No posts yet.</p>
+  {% if current_user.is_authenticated %}
+    <a href="{{ url_for('blog.new_post') }}" class="btn btn-primary mt-4">Write the first one</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

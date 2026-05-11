@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}{% if post %}Edit Post{% else %}New Post{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-semibold" style="color: var(--color-text-main);">
+      {% if post %}Edit Post{% else %}New Post{% endif %}
+    </h1>
+    {% if post %}
+      <form method="POST" action="{{ url_for('blog.delete_post', slug=post.slug) }}"
+            onsubmit="return confirm('Are you sure you want to delete this post?')">
+        <button type="submit" class="btn btn-danger text-xs py-1.5">Delete Post</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <form method="POST"
+        action="{% if post %}{{ url_for('blog.edit_post', slug=post.slug) }}{% else %}{{ url_for('blog.new_post') }}{% endif %}"
+        enctype="multipart/form-data"
+        class="space-y-5">
+
+    <div>
+      <label for="title" class="label">Title</label>
+      <input type="text" name="title" id="title" class="input text-lg font-medium py-3"
+             value="{{ post.title if post else '' }}" placeholder="Your post title..." required />
+    </div>
+
+    <div>
+      <label class="label">Cover Image <span style="color: var(--color-text-muted);">(optional)</span></label>
+      {% if post and post.cover_image %}
+        <div class="mb-2">
+          <img src="{{ url_for('static', filename='uploads/' + post.cover_image) }}"
+               alt="Cover" class="h-40 rounded-lg object-cover" id="cover-preview" />
+        </div>
+      {% else %}
+        <img id="cover-preview" class="hidden h-40 rounded-lg object-cover mb-2" />
+      {% endif %}
+      <input type="file" name="cover_image" accept="image/*"
+             class="text-sm file:btn file:btn-primary file:mr-3 file:text-xs w-full"
+             onchange="previewCover(this)" />
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-1">
+        <label for="content" class="label mb-0">Content (Markdown)</label>
+        <div class="flex gap-2">
+          <button type="button" onclick="showTab('write')"
+                  id="tab-write"
+                  class="text-xs px-3 py-1 rounded-md transition-colors"
+                  style="background-color: var(--color-primary); color: #fff;">Write</button>
+          <button type="button" onclick="showTab('preview')"
+                  id="tab-preview"
+                  class="text-xs px-3 py-1 rounded-md transition-colors"
+                  style="background-color: var(--color-surface); color: var(--color-text-muted);">Preview</button>
+        </div>
+      </div>
+
+      <div id="editor-write">
+        <textarea name="content" id="content" rows="20"
+                  class="input font-mono text-sm resize-y"
+                  placeholder="Write your post in **Markdown**...&#10;&#10;# Heading&#10;&#10;Paragraph text with **bold** and _italic_.&#10;&#10;```python&#10;print('Hello, World!')&#10;```">{{ post.content if post else '' }}</textarea>
+      </div>
+      <div id="editor-preview" class="card p-6 hidden">
+        <div id="preview-output" class="prose-content" style="color: var(--color-text-main);"></div>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit" class="btn btn-primary px-6">
+        {% if post %}Save Changes{% else %}Publish Post{% endif %}
+      </button>
+      <a href="{% if post %}{{ url_for('blog.post_detail', slug=post.slug) }}{% else %}{{ url_for('blog.index') }}{% endif %}"
+         class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function showTab(tab) {
+    const writeEl = document.getElementById('editor-write');
+    const previewEl = document.getElementById('editor-preview');
+    const writeBtn = document.getElementById('tab-write');
+    const previewBtn = document.getElementById('tab-preview');
+
+    if (tab === 'write') {
+      writeEl.classList.remove('hidden');
+      previewEl.classList.add('hidden');
+      writeBtn.style.backgroundColor = 'var(--color-primary)';
+      writeBtn.style.color = '#fff';
+      previewBtn.style.backgroundColor = 'var(--color-surface)';
+      previewBtn.style.color = 'var(--color-text-muted)';
+    } else {
+      writeEl.classList.add('hidden');
+      previewEl.classList.remove('hidden');
+      previewBtn.style.backgroundColor = 'var(--color-primary)';
+      previewBtn.style.color = '#fff';
+      writeBtn.style.backgroundColor = 'var(--color-surface)';
+      writeBtn.style.color = 'var(--color-text-muted)';
+
+      const content = document.getElementById('content').value;
+      fetch('/api/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      })
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('preview-output').innerHTML = d.html || marked(content);
+      })
+      .catch(() => {
+        document.getElementById('preview-output').innerHTML = '<em>Preview unavailable</em>';
+      });
+    }
+  }
+
+  function previewCover(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      const img = document.getElementById('cover-preview');
+      reader.onload = e => {
+        img.src = e.target.result;
+        img.classList.remove('hidden');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+</script>
+{% endblock %}

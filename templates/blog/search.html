@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+  <h1 class="text-3xl font-semibold mb-2" style="color: var(--color-text-main);">
+    Search Results
+  </h1>
+  {% if query %}
+    <p class="text-sm" style="color: var(--color-text-muted);">
+      Results for "<span class="font-medium">{{ query }}</span>"
+    </p>
+  {% endif %}
+</div>
+
+<!-- Posts Section -->
+<section class="mb-12">
+  <h2 class="text-lg font-semibold mb-4" style="color: var(--color-text-main);">
+    Posts
+  </h2>
+  {% if posts %}
+    <div class="space-y-3">
+      {% for post in posts %}
+        <div class="card px-5 py-4 flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <a href="{{ url_for('blog.post_detail', slug=post.slug) }}"
+               class="font-medium hover:underline line-clamp-1" style="color: var(--color-text-main);">
+              {{ post.title }}
+            </a>
+            <div class="flex items-center gap-3 mt-1 text-xs" style="color: var(--color-text-muted);">
+              <a href="{{ url_for('user.profile', username=post.author.username) }}"
+                 class="hover:underline" style="color: var(--color-primary);">
+                {{ post.author.username }}
+              </a>
+              <span>{{ post.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+          </div>
+          <span class="flex items-center gap-3 text-xs shrink-0" style="color: var(--color-text-muted);">
+            <span class="flex items-center gap-1" title="Views">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              {{ post.views }}
+            </span>
+            <span class="flex items-center gap-1" title="Likes">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              {{ post.like_count }}
+            </span>
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+      <div class="mt-8 flex items-center justify-center gap-2">
+        {% if current_page > 1 %}
+          <a href="{{ url_for('blog.search', q=query, page=current_page - 1) }}" class="btn btn-ghost text-sm px-3 py-1.5">
+            ← Previous
+          </a>
+        {% endif %}
+        
+        <div class="flex gap-1">
+          {% for page_num in range(1, total_pages + 1) %}
+            {% if page_num == current_page %}
+              <span class="btn btn-ghost text-sm px-3 py-1.5 font-semibold" style="color: var(--color-primary);">
+                {{ page_num }}
+              </span>
+            {% else %}
+              <a href="{{ url_for('blog.search', q=query, page=page_num) }}" class="btn btn-ghost text-sm px-3 py-1.5">
+                {{ page_num }}
+              </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+        
+        {% if current_page < total_pages %}
+          <a href="{{ url_for('blog.search', q=query, page=current_page + 1) }}" class="btn btn-ghost text-sm px-3 py-1.5">
+            Next →
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% else %}
+    <p class="text-sm" style="color: var(--color-text-muted);">No posts found.</p>
+  {% endif %}
+</section>
+
+<!-- Writers Section -->
+<section>
+  <h2 class="text-lg font-semibold mb-4" style="color: var(--color-text-main);">
+    Writers
+  </h2>
+  {% if writers %}
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {% for writer in writers %}
+        <a href="{{ url_for('user.profile', username=writer.username) }}"
+           class="card p-5 no-underline group hover:shadow-md transition-shadow">
+          <div class="flex items-center gap-3 mb-3">
+            <img src="{{ url_for('static', filename='uploads/' + writer.profile_picture) }}"
+                 alt="{{ writer.username }}"
+                 class="w-12 h-12 rounded-full object-cover"
+                 onerror="this.src='{{ url_for('static', filename='uploads/profiles/default.png') }}'" />
+            <div class="flex-1">
+              <p class="font-semibold text-sm group-hover:underline" style="color: var(--color-text-main);">
+                {{ writer.username }}
+              </p>
+              <p class="text-xs" style="color: var(--color-text-muted);">
+                {{ writer.posts.count() }} post{% if writer.posts.count() != 1 %}s{% endif %}
+              </p>
+            </div>
+          </div>
+          {% if writer.bio %}
+            <p class="text-xs line-clamp-2" style="color: var(--color-text-muted);">
+              {{ writer.bio }}
+            </p>
+          {% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-sm" style="color: var(--color-text-muted);">No writers found.</p>
+  {% endif %}
+</section>
+{% endblock %}
