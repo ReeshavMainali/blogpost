@@ -1,47 +1,47 @@
-# Inkwell - A Minimalist Blogging Platform
+# Slated - A Minimalist Blogging Platform
 
 A clean, minimal space to read and write. No noise — just words.
 
-Inkwell is a modern blogging platform built with Flask that focuses on simplicity and readability. Share your ideas, discover great writers, and engage with the community.
+Slated is a modern blogging platform built with Flask that focuses on simplicity and readability. Share your ideas, discover great writers, and engage with the community.
 
 ## Features
 
 ### Core Features
-[x] User authentication (registration, login, logout)
-[x] Create, edit, and delete blog posts with markdown support
-[x] Cover image uploads for posts
-[x] User profiles with bio and profile pictures
-[x] Responsive design for mobile and desktop
+- [x] User authentication (registration, login, logout)
+- [x] Create, edit, and delete blog posts with markdown support
+- [x] Cover image uploads for posts
+- [x] User profiles with bio and profile pictures
+- [x] Responsive design for mobile and desktop
 
 ### Content Discovery
-[x] Trending posts sorted by views and likes
-[x] Recent posts feed
-[x] Search functionality for posts and writers
-[x] Pagination for trending posts and search results (10 items per page)
+- [x] Trending posts sorted by views and likes
+- [x] Recent posts feed
+- [x] Search functionality for posts and writers
+- [x] Pagination for trending posts and search results (10 items per page)
 
 ### Engagement Features
-[x] Like/unlike posts
-[x] Comment on posts with reply functionality
-[x] Delete your own comments
-[x] View count tracking
+- [x] Like/unlike posts
+- [x] Comment on posts with reply functionality
+- [x] Delete your own comments
+- [x] View count tracking
 
 ### View Tracking
-[x] Authenticated users can view a post once per account
-[x] Unauthenticated users tracked via cookies (one view per post per 30 days)
-[x] View counts contribute to trending algorithm
+- [x] Authenticated users can view a post once per account
+- [x] Unauthenticated users tracked via cookies (one view per post per 30 days)
+- [x] View counts contribute to trending algorithm
 
 ### User Features
-[x] User settings page
-[x] Profile customization (bio, profile picture)
-[x] View your own posts
-[x] Manage your account
+- [x] User settings page
+- [x] Profile customization (bio, profile picture)
+- [x] View your own posts
+- [x] Manage your account
 
 ### UI/UX
-[x] Dark/light theme toggle
-[x] Clean, minimalist interface
-[x] Smooth transitions and hover effects
-[x] Markdown editor with live preview
-[x] Icon-based stats (views, likes, comments)
+- [x] Dark/light theme toggle
+- [x] Clean, minimalist interface
+- [x] Smooth transitions and hover effects
+- [x] Markdown editor with live preview
+- [x] Icon-based stats (views, likes, comments)
 
 ## Tech Stack
 
