@@ -62,7 +62,7 @@ Slated is a modern blogging platform built with Flask that focuses on simplicity
 
 1. Clone the repository or navigate to the project directory:
 ```bash
-cd /home/reeves/Projects/blogpost
+cd blogpost
 ```
 
 2. Create a virtual environment:
