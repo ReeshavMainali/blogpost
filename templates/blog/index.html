@@ -3,6 +3,7 @@
 
 {% block content %}
 <!-- Hero -->
+{% if not current_user.is_authenticated %}
 <div class="mb-12 text-center">
   <h1 class="text-4xl sm:text-5xl font-semibold tracking-tight mb-4" style="color: var(--color-text-main);">
     Ideas worth sharing
@@ -10,13 +11,12 @@
   <p class="text-lg max-w-xl mx-auto" style="color: var(--color-text-muted);">
     A minimalist space to read and write. No noise — just words.
   </p>
-  {% if not current_user.is_authenticated %}
-    <div class="mt-6 flex gap-3 justify-center">
-      <a href="{{ url_for('auth.register') }}" class="btn btn-primary px-6 py-2.5">Start writing</a>
-      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost px-6 py-2.5">Sign in</a>
-    </div>
-  {% endif %}
+  <div class="mt-6 flex gap-3 justify-center">
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary px-6 py-2.5">Start writing</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-ghost px-6 py-2.5">Sign in</a>
+  </div>
 </div>
+{% endif %}
 
 <!-- Trending -->
 {% if trending %}
