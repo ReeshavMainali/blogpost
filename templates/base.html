@@ -20,12 +20,12 @@
   </script>
   {% block head %}{% endblock %}
 </head>
-<body class="min-h-screen" style="background-color: var(--color-bg); color: var(--color-text-main);">
+<body class="min-h-screen flex flex-col" style="background-color: var(--color-bg); color: var(--color-text-main);">
 
   <!-- Navbar -->
   <header class="sticky top-0 z-50 border-b border-black/5 dark:border-white/5 backdrop-blur-sm"
           style="background-color: color-mix(in srgb, var(--color-surface) 90%, transparent);">
-    <nav class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+    <nav class="container-max px-6 h-14 flex items-center justify-between gap-4" style="max-width: 100vw;">
       <a href="{{ url_for('blog.index') }}"
          class="text-lg font-semibold tracking-tight no-underline"
          style="color: var(--color-text-main);">
@@ -91,7 +91,7 @@
   <!-- Flash messages -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-      <div class="max-w-5xl mx-auto px-4 mt-4 space-y-2" id="flash-container">
+      <div class="container-max px-6 mt-4 space-y-2" id="flash-container" style="max-width: 100vw;">
         {% for category, message in messages %}
           <div class="flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium
                       {% if category == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300
@@ -111,13 +111,13 @@
   {% endwith %}
 
   <!-- Main content -->
-  <main class="max-w-5xl mx-auto px-4 py-8">
+  <main class="container-max px-8 py-8 flex-1 mx-auto" style="max-width: 95vw;">
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer -->
-  <footer class="mt-16 py-8 border-t border-black/5 dark:border-white/5">
-    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+  <footer class="mt-auto py-4 border-t border-black/5 dark:border-white/5">
+    <div class="container-max px-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="max-width: 100vw;">
       <span class="text-sm" style="color: var(--color-text-muted);">
         &copy; 2026 Slated. All rights reserved.
       </span>

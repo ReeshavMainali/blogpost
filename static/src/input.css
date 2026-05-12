@@ -52,6 +52,11 @@
 }
 
 @layer components {
+  /* .container-max {
+    max-width: 100vw;
+    @apply mx-auto;
+  } */
+
   .btn {
     @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm
            transition-all duration-200 cursor-pointer select-none;
