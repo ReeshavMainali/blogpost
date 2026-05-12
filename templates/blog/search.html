@@ -99,13 +99,13 @@
       {% for writer in writers %}
         <a href="{{ url_for('user.profile', username=writer.username) }}"
            class="card p-5 no-underline group hover:shadow-md transition-shadow">
-          <div class="flex items-center gap-3 mb-3">
+          <div class="flex items-center gap-3 mb-3 min-w-0">
             <img src="{{ url_for('static', filename='uploads/' + writer.profile_picture) }}"
                  alt="{{ writer.username }}"
-                 class="w-12 h-12 rounded-full object-cover"
+                 class="w-12 h-12 rounded-full object-cover shrink-0"
                  onerror="this.src='{{ url_for('static', filename='uploads/profiles/default.png') }}'" />
-            <div class="flex-1">
-              <p class="font-semibold text-sm group-hover:underline" style="color: var(--color-text-main);">
+            <div class="flex-1 min-w-0">
+              <p class="font-semibold text-sm group-hover:underline line-clamp-1" style="color: var(--color-text-main);">
                 {{ writer.username }}
               </p>
               <p class="text-xs" style="color: var(--color-text-muted);">
